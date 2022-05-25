@@ -1,0 +1,35 @@
+﻿az containerapp env create \
+  --name $CONTAINERAPPS_ENVIRONMENT \
+  --resource-group $RESOURCE_GROUP \
+  --location $LOCATION
+
+az containerapp create \
+  --name my-container-app \
+  --resource-group $RESOURCE_GROUP \
+  --environment $CONTAINERAPPS_ENVIRONMENT \
+  --image mcr.microsoft.com/azuredocs/containerapps-helloworld:latest \
+  --target-port 80 \
+  --ingress 'external' \
+  --query properties.configuration.ingress.fqdn
+
+
+##attempt to make it internal only
+##
+##
+
+az containerapp env create \
+ -n my-internal-containerapp-env \
+ -g $RESOURCE_GROUP \
+ --location $LOCATION \
+ --internal-only true \
+ --infrastructure-subnet-resource-id <blabla>
+
+# The environment network configuration is invalid: Provided subnet must have a size of at least /23
+az containerapp create \
+  --name my-internal-containerapp \
+  --resource-group $RESOURCE_GROUP \
+  --environment my-internal-containerapp-env \
+  --image mcr.microsoft.com/azuredocs/containerapps-helloworld:latest \
+  --target-port 80 \
+  --ingress 'internal' \
+  --query properties.configuration.ingress.fqdn
